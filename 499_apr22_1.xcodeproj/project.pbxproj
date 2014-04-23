@@ -10,6 +10,9 @@
 		D92554411906E9110025A546 /* main.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = main.py; sourceTree = "<group>"; };
 		D92554441906F1B60025A546 /* secondthread.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = secondthread.py; sourceTree = "<group>"; };
 		D92554451906F4DB0025A546 /* database.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = database.py; sourceTree = "<group>"; };
+		D9BCE14C1907605D00D6236C /* sensors.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = sensors.py; sourceTree = "<group>"; };
+		D9BCE14D1907647100D6236C /* gui.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = gui.py; sourceTree = "<group>"; };
+		D9BCE14E1907710300D6236C /* io.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = io.py; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -17,6 +20,9 @@
 			isa = PBXGroup;
 			children = (
 				D92554411906E9110025A546 /* main.py */,
+				D9BCE14C1907605D00D6236C /* sensors.py */,
+				D9BCE14D1907647100D6236C /* gui.py */,
+				D9BCE14E1907710300D6236C /* io.py */,
 				D92554451906F4DB0025A546 /* database.py */,
 				D92554441906F1B60025A546 /* secondthread.py */,
 			);
@@ -174,6 +180,7 @@
 				D92554401906E67F0025A546 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

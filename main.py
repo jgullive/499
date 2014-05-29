@@ -1,26 +1,27 @@
 import thread
 
+from controller import *
+from xmlparse import *
 from secondthread import print_time
 from database import setupDB
-from sensors import read_sensors
+
 from gui import open_gui
 
-print "We are using python in xcode!"
+print "##########################################"
+print "#        Welcome to the Brewery          #"
+print "##########################################"
+print ""
 
-#open_gui("notAthread")
+#XmlParse()
 
 # Create two threads as follows
 try:
-    """
-    thread.start_new_thread( print_time, ("Thread-1", 2, ) )
-    thread.start_new_thread( print_time, ("Thread-2", 4, ) )
-    """
-    thread.start_new_thread( read_sensors, ("Sensors",))
+    controller = Controller()
 
 except:
-    print "Error: unable to start thread"
+    print "Error: unable to start controller"
 
-open_gui()
+open_gui(controller.sys_control)
 
 """
 try:

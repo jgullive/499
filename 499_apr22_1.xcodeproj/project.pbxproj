@@ -10,6 +10,10 @@
 		D92554411906E9110025A546 /* main.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = main.py; sourceTree = "<group>"; };
 		D92554441906F1B60025A546 /* secondthread.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = secondthread.py; sourceTree = "<group>"; };
 		D92554451906F4DB0025A546 /* database.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = database.py; sourceTree = "<group>"; };
+		D92610991908865900F9BDD7 /* controller.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = controller.py; sourceTree = "<group>"; };
+		D926109B1909BCBB00F9BDD7 /* xmlparse.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = xmlparse.py; sourceTree = "<group>"; };
+		D9A49AFE19082F6F009BB8F7 /* sensor_sim.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = sensor_sim.py; sourceTree = "<group>"; };
+		D9A49AFF190830E8009BB8F7 /* profile.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = profile.py; sourceTree = "<group>"; };
 		D9BCE14C1907605D00D6236C /* sensors.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = sensors.py; sourceTree = "<group>"; };
 		D9BCE14D1907647100D6236C /* gui.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = gui.py; sourceTree = "<group>"; };
 		D9BCE14E1907710300D6236C /* io.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = io.py; sourceTree = "<group>"; };
@@ -19,10 +23,14 @@
 		D92554361906E67F0025A546 = {
 			isa = PBXGroup;
 			children = (
+				D926109B1909BCBB00F9BDD7 /* xmlparse.py */,
 				D92554411906E9110025A546 /* main.py */,
 				D9BCE14C1907605D00D6236C /* sensors.py */,
-				D9BCE14D1907647100D6236C /* gui.py */,
+				D92610991908865900F9BDD7 /* controller.py */,
+				D9A49AFE19082F6F009BB8F7 /* sensor_sim.py */,
 				D9BCE14E1907710300D6236C /* io.py */,
+				D9A49AFF190830E8009BB8F7 /* profile.py */,
+				D9BCE14D1907647100D6236C /* gui.py */,
 				D92554451906F4DB0025A546 /* database.py */,
 				D92554441906F1B60025A546 /* secondthread.py */,
 			);

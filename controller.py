@@ -13,6 +13,10 @@ from string import upper
 class ControlParameters():
     def __init__(self):
         self.systemOn = 0
+        self.mash_start_time = 0
+        self.lauter_start_time = 0
+        self.boil_start_time = 0
+        self.boil_temp_reached = 0
         self.recipe_xml = XmlParse()
         self.sys_profile = SystemProfile()
         self.recipe_profile = RecipeProfile()
@@ -96,95 +100,160 @@ def initialize_state(state, sensors, sys_control):
     sys_control.sys_profile.calibrate_system(sys_control.recipe_profile)
     print "grain weight: %0.2f" % sys_control.recipe_profile.grain_weight
     
-    return "KETTLEINIT"
+    return "STRIKEINIT"
 
 #
-# Kettle fill and heat
+# Kettle/Res fill and heat
 #
 def kettle_init_state(state, sensors, sys_control):
-    #print "KETTLE FILL"
+    #print "KETTLE INIT"
     
     time.sleep(0.5)
     
-    temp_reached = 0
-    vol_reached = 0
+    temp_kettle_reached = 0
+    vol_kettle_reached  = 0
+    temp_res_reached    = 0
+    vol_res_reached     = 0
 
-    newState = "KETTLEINIT"
+    newState = "STRIKEINIT"
 
-    if sensors.read_kettle_temp() >= 37:
-        sensors.heater_off()
-        temp_reached = 1
+    # KETTLE readings
+    if sensors.read_kettle_temp() >= sys_control.recipe_profile.mash_temp + 5:
+        sensors.heater_kettle_off()
+        temp_kettle_reached = 1
     else:
-        sensors.heater_on()
-        temp_reached = 0
+        sensors.heater_kettle_on()
+        temp_kettle_reached = 0
     
     if sensors.read_kettle_volume() >= 15:
-        sensors.input_off()
-        vol_reached = 1
+        sensors.input_kettle_off()
+        vol_kettle_reached = 1
     else:
-        sensors.input_on()
-        vol_reached = 0
-            
-    if vol_reached and temp_reached:
-        newState = "RESFILL1"
+        sensors.input_kettle_on()
+        vol_kettle_reached = 0
+    
+    # RES readings
+    if sensors.read_res_temp() >= sys_control.recipe_profile.mash_temp + 5:
+        sensors.heater_res_off()
+        temp_res_reached = 1
+    else:
+        sensors.heater_res_on()
+        temp_res_reached = 0
+    
+    if sensors.read_res_volume() >= 15:
+        sensors.input_res_off()
+        vol_res_reached = 1
+    else:
+        sensors.input_res_on()
+        vol_res_reached = 0
+    
+    # Check for temps and vols reached
+    if vol_kettle_reached and temp_kettle_reached:
+        if vol_res_reached and temp_res_reached:
+            newState = "MASHFILL"
 
     return (newState)
 
-
-#
-# Fill the resevoir for mash
-#
-
-def res_fill_mash_state(state, sensors, sys_control):
-    print "RESFILL1"
-
-    return "MASHFILL"
 #
 # Fill the mash
 #
 def mash_fill_state(state, sensors, sys_control):
     print "MASHFILL"
+    
+    if sensors.read_kettle_volume() >= 1:
+        sensors.kettle_open()
+    else:
+        sensors.kettle_closed()
+        self.mash_start_time = datetime.datetime.now()
+        return "MASH"
 
-    return "MASH"
+    return "MASHFILL"
+
 #
 # Mash
 #
 def mash_state(state, sensors, sys_control):
     print "MASH"
+    
+    if sensors.read_mash_temp() <= sys_control.recipe_profile.mash_temp:
+        sensors.pump_res()
+    else:
+        sensors.stop_pumping()
+    
+    # Keep the RES at the required temperature
+    if sensors.read_res_temp() >= sys_control.recipe_profile.mash_temp + 5:
+        sensors.heater_res_off()
+    else:
+        sensors.heater_res_on()
+
+    now = datetime.datetime.now()
+    diff = now - self.mash_start_time
+    if diff.minutes >= sys_control.recipe_profile.mash_time:
+        sensors.stop_pumping()
+        return "PRELAUTER"
+
+    return "MASH"
+
+#
+# Pre-lauter (heat up the res to temp)
+#
+def res_lauter_temp_state(state, sensors, sys_control):
+    print "PRELAUTER"
+    # Bring the RES up to the required lauter temperature
+    if sensors.read_res_temp() >= sys_control.recipe_profile.mash_temp + 20:
+        sensors.heater_res_off()
+        return "LAUTER"
+    else:
+        sensors.heater_res_on()
 
     return "PRELAUTER"
-
-#
-# Pre-lauter (heat up the kettle to temp)
-#
-def kettle_lauter_temp_state(state, sensors, sys_control):
-    print "PRELAUTER"
-
-    return "RESFILL2"
-
-#
-# Fill the resevoir for lauter
-#
-def res_fill_lauter_state(state, sensors, sys_control):
-    print "RESFILL2"
-
-    return "LAUTER"
 
 #
 # Begin lauter
 #
 def lauter_state(state, sensors, sys_control):
     print "LAUTER"
+    
+    # I'm pretty sure we have to do the lauter by time. We don't have any way to tell when the mash is empty
+    self.lauter_start_time = datetime.datetime.now()
+    now = datetime.datetime.now()
+    diff = now - self.lauter_start_time
+    if diff.minutes >= 1: # TODO: real value
+        sensors.stop_pumping()
+        sensors.res_closed()
+        return "BOIL"
+    else:
+        sensors.res_open()
+        sensors.pump_kettle()
 
-    return "BOIL"
+    return "LAUTER"
 
 #
 # Boil
 #
 def boil_state(state, sensors, sys_control):
     print "BOIL"
+    
+    if sensors.read_kettle_temp() > 50:
+        if self.boil_temp_reached is 0:
+            self.boil_temp_reached = 1
+            self.boil_start_time = datetime.datetime.now()
+        sensors.heater_kettle_off()
+    else:
+        sensors.heater_kettle_on()
+    
+    if self.boil_temp_reached:
+        now = datetime.datetime.now()
+        diff = now - self.lauter_start_time
+        if diff.minutes >= 1: # TODO: real value
+            sensors.stop_pumping()
+            sensors.res_closed()
+            return "COOL"
+        else:
+            sensors.res_open()
+            sensors.pump_kettle()
 
-    return "COOL"
+    return "BOIL"
 
 #
 # Cool
@@ -219,20 +288,20 @@ class Controller():
         self.sensors = Sensors()
         self.sys_control = ControlParameters()
         self.stateMachine = StateMachine(self.sensors, self.sys_control)
+
         
         self.stateMachine.add_state("FREEZE", system_freeze)
         self.stateMachine.add_state("INIT", initialize_state)
-        self.stateMachine.add_state("KETTLEINIT", kettle_init_state)
-        self.stateMachine.add_state("RESFILL1", res_fill_mash_state)
+        self.stateMachine.add_state("STRIKEINIT", kettle_init_state)
         self.stateMachine.add_state("MASHFILL", mash_fill_state)
         self.stateMachine.add_state("MASH", mash_state)
-        self.stateMachine.add_state("PRELAUTER", kettle_lauter_temp_state)
-        self.stateMachine.add_state("RESFILL2", res_fill_lauter_state)
+        self.stateMachine.add_state("PRELAUTER", res_lauter_temp_state)
         self.stateMachine.add_state("LAUTER", lauter_state)
         self.stateMachine.add_state("BOIL", boil_state)
         self.stateMachine.add_state("COOL", cool_state)
         self.stateMachine.add_state("END", final_state, end_state=1)
         self.stateMachine.set_start("INIT")
+
         
         try:
             thread.start_new_thread( self.stateMachine.run, ("State_machine", 1))

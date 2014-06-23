@@ -41,30 +41,45 @@ class Simulator():
 
     # Simulate the temperature readings
     def sim_mash_temp(self):
+        if self.outputs.kettle_valve:
+            self.inputs.mash_temp += \
+                self.calc_temp(self.inputs.kettle_temp, self.inputs.mash_temp, \
+                          self.flow_rate, self.inputs.mash_volume, 0)
         if self.outputs.res_valve:
             self.inputs.mash_temp += \
                 self.calc_temp(self.inputs.res_temp, self.inputs.mash_temp, \
-                          self.flow_rate, self.inputs.mash_volume, 0)
+                            self.flow_rate, self.inputs.mash_volume, 0)
+        
+        if self.outputs.pump_res_valve and self.outputs.pump:
+            self.inputs.mash_temp += \
+                self.calc_temp(self.inputs.res_temp, self.inputs.mash_temp, \
+                               self.flow_rate, self.inputs.mash_volume, 0)
+
         self.inputs.mash_temp -= self.calc_heat_loss(self.inputs.kettle_temp, self.inputs.kettle_volume)
 
     def sim_kettle_temp(self):
-        if self.outputs.input_valve:
+        if self.outputs.input_kettle_valve:
             self.inputs.kettle_temp += self.calc_temp(self.inputs_temp, self.inputs.kettle_temp, self.flow_rate, self.inputs.kettle_volume, 0)
     
-        if self.outputs.heater:
+        if self.outputs.heater_kettle:
             if self.inputs.kettle_volume is not 0:
                 self.inputs.kettle_temp += self.heat_rate/(0.5*self.inputs.kettle_volume)
             else:
                 self.inputs.kettle_temp += self.heat_rate
         
         self.inputs.kettle_temp -= self.calc_heat_loss(self.inputs.kettle_temp, self.inputs.kettle_volume)
-                
+
     def sim_res_temp(self):
-        if self.outputs.kettle_valve:
-            self.inputs.res_temp += \
-                self.calc_temp(self.inputs.kettle_temp, self.inputs.res_temp, \
-                          self.flow_rate, self.inputs.res_volume, 0)
-        self.inputs.mash_temp -= self.calc_heat_loss(self.inputs.kettle_temp, self.inputs.kettle_volume)
+        if self.outputs.input_res_valve:
+            self.inputs.res_temp += self.calc_temp(self.inputs_temp, self.inputs.res_temp, self.flow_rate, self.inputs.res_volume, 0)
+        
+        if self.outputs.heater_res:
+            if self.inputs.res_volume is not 0:
+                self.inputs.res_temp += self.heat_rate/(0.5*self.inputs.res_volume)
+            else:
+                self.inputs.res_temp += self.heat_rate
+        
+        self.inputs.res_temp -= self.calc_heat_loss(self.inputs.res_temp, self.inputs.res_volume)
 
     def calc_temp(self, new_temp, old_temp, new_vol, old_vol, sh):
         if old_vol > 1:
@@ -90,7 +105,7 @@ class Simulator():
             self.inputs.mash_volume -= self.flow_rate
 
     def sim_kettle_volume(self):
-        if self.outputs.input_valve:
+        if self.outputs.input_kettle_valve:
             self.inputs.kettle_volume += self.flow_rate
         if self.outputs.mash_valve:
             self.inputs.kettle_volume += self.flow_rate
@@ -98,6 +113,8 @@ class Simulator():
             self.inputs.kettle_volume -= self.flow_rate
 
     def sim_res_volume(self):
+        if self.outputs.input_res_valve:
+            self.inputs.res_volume += self.flow_rate
         if self.outputs.kettle_valve:
             self.inputs.mash_volume += self.flow_rate
         if self.outputs.mash_valve:

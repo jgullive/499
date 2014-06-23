@@ -18,9 +18,17 @@ class Inputs():
 class Outputs():
     
     def __init__(self):
-        self.input_valve = 0
+        # in valves
+        self.input_kettle_valve = 0
+        self.input_res_valve = 0
+        # out valves
         self.mash_valve = 0
         self.kettle_valve = 0
         self.res_valve = 0
+        # pump valves
+        self.pump_res_valve = 0
+        self.pump_kettle_valve = 0
+        # heaters/pumps
         self.pump = 0
-        self.heater = 0
+        self.heater_kettle = 0
+        self.heater_res = 0

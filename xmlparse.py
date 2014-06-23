@@ -9,6 +9,8 @@ class XmlParse():
     def __init__(self):
         self.path = "no_path"
         self.grain_weight = 0
+        self.mash_temp = 32
+        self.mash_time = 1
     
     def read_xml(self, path):
         

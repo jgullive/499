@@ -40,14 +40,14 @@ class Sensors():
         self.mash_open()
         self.pump_kettle_valve = 0
         self.pump_res_valve = 1
-        sleep(3)
+        #time.sleep(3)
         self.pump_on()
     
     def pump_kettle(self):
         self.mash_open()
         self.pump_kettle_valve = 1
         self.pump_res_valve = 0
-        sleep(3)
+        #time.sleep(3)
         self.pump_on()
     
     def stop_pumping(self):
@@ -132,17 +132,17 @@ class Sensors():
         #self.heater_on()
         while 1:
             self.no_update = 1
-            if self.kettle_temp is not self.read_kettle_temp() or self.kettle_volume is not self.read_kettle_volume():
+            if abs(self.kettle_temp - self.read_kettle_temp()) > 1 or abs(self.kettle_volume - self.read_kettle_volume()) > 1:
                 print "kettle (temp, vol): (%0.1f, %0.1f)" % (self.read_kettle_temp(), self.read_kettle_volume())
                 self.no_update = 0
                 self.kettle_temp = self.read_kettle_temp()
                 self.kettle_volume = self.read_kettle_volume()
-            if self.mash_temp is not self.read_mash_temp() or self.mash_volume is not self.read_mash_volume():
+            if abs(self.mash_temp - self.read_mash_temp()) > 1 or abs(self.mash_volume - self.read_mash_volume()) > 1:
                 print "mash   (temp, vol): (%0.1f, %0.1f)" % (self.read_mash_temp(), self.read_mash_volume())
                 self.no_update = 0
                 self.mash_temp = self.read_mash_temp()
                 self.mash_volume = self.read_mash_volume()
-            if self.res_temp is not self.read_res_temp() or self.res_volume is not self.read_res_volume():
+            if abs(self.res_temp - self.read_res_temp()) > 1 or abs(self.res_volume - self.read_res_volume()) > 1:
                 print "res    (temp, vol): (%0.1f, %0.1f)" % (self.read_res_temp(), self.read_res_volume())
                 self.no_update = 0
                 self.res_temp = self.read_res_temp()

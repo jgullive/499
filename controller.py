@@ -3,6 +3,8 @@
 # on the inputs, state, and profile
 #
 
+
+import datetime
 import time
 import thread
 from xmlparse import *
@@ -47,6 +49,8 @@ class StateMachine():
     
     def run(self, threadName, cargo):
         
+        oldState = ""
+        
         try:
             handler = self.handlers[self.startState]
             newState = self.startState
@@ -61,6 +65,9 @@ class StateMachine():
                 pass
             handler = self.handlers[upper(newState)]
             newState = handler(newState, self.sensors, self.sys_control)
+            if newState is not oldState:
+                print newState
+                oldState = newState
             
             if upper(newState) in self.endStates:
                 newState = system_freeze(newState, self.sensors, self.sys_control)
@@ -150,6 +157,10 @@ def kettle_init_state(state, sensors, sys_control):
     # Check for temps and vols reached
     if vol_kettle_reached and temp_kettle_reached:
         if vol_res_reached and temp_res_reached:
+            sensors.input_kettle_off()
+            sensors.input_res_off()
+            sensors.heater_kettle_off()
+            sensors.heater_res_off()
             newState = "MASHFILL"
 
     return (newState)
@@ -158,13 +169,13 @@ def kettle_init_state(state, sensors, sys_control):
 # Fill the mash
 #
 def mash_fill_state(state, sensors, sys_control):
-    print "MASHFILL"
+    #print "MASHFILL"
     
     if sensors.read_kettle_volume() >= 1:
         sensors.kettle_open()
     else:
         sensors.kettle_closed()
-        self.mash_start_time = datetime.datetime.now()
+        sys_control.mash_start_time = datetime.datetime.now()
         return "MASH"
 
     return "MASHFILL"
@@ -173,7 +184,7 @@ def mash_fill_state(state, sensors, sys_control):
 # Mash
 #
 def mash_state(state, sensors, sys_control):
-    print "MASH"
+    #print "MASH"
     
     if sensors.read_mash_temp() <= sys_control.recipe_profile.mash_temp:
         sensors.pump_res()
@@ -187,8 +198,8 @@ def mash_state(state, sensors, sys_control):
         sensors.heater_res_on()
 
     now = datetime.datetime.now()
-    diff = now - self.mash_start_time
-    if diff.minutes >= sys_control.recipe_profile.mash_time:
+    diff = now - sys_control.mash_start_time
+    if diff.seconds/60 >= sys_control.recipe_profile.mash_time:
         sensors.stop_pumping()
         return "PRELAUTER"
 
@@ -198,9 +209,9 @@ def mash_state(state, sensors, sys_control):
 # Pre-lauter (heat up the res to temp)
 #
 def res_lauter_temp_state(state, sensors, sys_control):
-    print "PRELAUTER"
+    #print "PRELAUTER"
     # Bring the RES up to the required lauter temperature
-    if sensors.read_res_temp() >= sys_control.recipe_profile.mash_temp + 20:
+    if sensors.read_res_temp() >= sys_control.recipe_profile.mash_temp + 10:
         sensors.heater_res_off()
         return "LAUTER"
     else:
@@ -212,13 +223,14 @@ def res_lauter_temp_state(state, sensors, sys_control):
 # Begin lauter
 #
 def lauter_state(state, sensors, sys_control):
-    print "LAUTER"
+    #print "LAUTER"
     
     # I'm pretty sure we have to do the lauter by time. We don't have any way to tell when the mash is empty
-    self.lauter_start_time = datetime.datetime.now()
+    sys_control.lauter_start_time = datetime.datetime.now()
     now = datetime.datetime.now()
-    diff = now - self.lauter_start_time
-    if diff.minutes >= 1: # TODO: real value
+    diff = now - sys_control.lauter_start_time
+    if diff.seconds/3600 >= 0.5: # TODO: real value
+        print "stopping lauter"
         sensors.stop_pumping()
         sensors.res_closed()
         return "BOIL"
@@ -232,26 +244,22 @@ def lauter_state(state, sensors, sys_control):
 # Boil
 #
 def boil_state(state, sensors, sys_control):
-    print "BOIL"
+    #print "BOIL"
     
     if sensors.read_kettle_temp() > 50:
-        if self.boil_temp_reached is 0:
-            self.boil_temp_reached = 1
-            self.boil_start_time = datetime.datetime.now()
+        if sys_control.boil_temp_reached is 0:
+            sys_control.boil_temp_reached = 1
+            sys_control.boil_start_time = datetime.datetime.now()
         sensors.heater_kettle_off()
     else:
         sensors.heater_kettle_on()
     
-    if self.boil_temp_reached:
+    if sys_control.boil_temp_reached:
         now = datetime.datetime.now()
-        diff = now - self.lauter_start_time
-        if diff.minutes >= 1: # TODO: real value
-            sensors.stop_pumping()
-            sensors.res_closed()
+        diff = now - sys_control.lauter_start_time
+        if diff.seconds/60 >= 1: # TODO: real value
+            sensors.heater_kettle_off()
             return "COOL"
-        else:
-            sensors.res_open()
-            sensors.pump_kettle()
 
     return "BOIL"
 
@@ -259,7 +267,9 @@ def boil_state(state, sensors, sys_control):
 # Cool
 #
 def cool_state(state, sensors, sys_control):
-    print "COOL"
+    #print "COOL"
+    
+    
 
     return "END"
 #

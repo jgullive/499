@@ -43,3 +43,5 @@ class RecipeProfile():
         self.grain_weight = 12
         self.grist_ratio = 1.2
         self.boil_time = 60
+        self.mash_temp = 32
+        self.mash_time = 1

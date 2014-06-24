@@ -57,7 +57,7 @@ class Application(Frame):
 def open_gui(sys_control):
     
     
-    print "gui created"
+    print "gui created..."
     root = Tk()
     app = Application(sys_control, master=root)
     app.mainloop()

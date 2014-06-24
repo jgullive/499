@@ -38,23 +38,23 @@ class Sensors():
     
     def pump_res(self):
         self.mash_open()
-        self.pump_kettle_valve = 0
-        self.pump_res_valve = 1
+        self.outputs.pump_kettle_valve = 0
+        self.outputs.pump_res_valve = 1
         #time.sleep(3)
         self.pump_on()
     
     def pump_kettle(self):
         self.mash_open()
-        self.pump_kettle_valve = 1
-        self.pump_res_valve = 0
+        self.outputs.pump_kettle_valve = 1
+        self.outputs.pump_res_valve = 0
         #time.sleep(3)
         self.pump_on()
     
     def stop_pumping(self):
         self.pump_off()
         self.mash_closed()
-        self.pump_kettle_valve = 0
-        self.pump_res_valve = 0
+        self.outputs.pump_kettle_valve = 0
+        self.outputs.pump_res_valve = 0
     
 
     #Heater controls

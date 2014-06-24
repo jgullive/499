@@ -226,15 +226,19 @@ def lauter_state(state, sensors, sys_control):
     #print "LAUTER"
     
     # I'm pretty sure we have to do the lauter by time. We don't have any way to tell when the mash is empty
-    sys_control.lauter_start_time = datetime.datetime.now()
+    if sys_control.lauter_start_time is 0:
+        sys_control.lauter_start_time = datetime.datetime.now()
     now = datetime.datetime.now()
     diff = now - sys_control.lauter_start_time
-    if diff.seconds/3600 >= 0.5: # TODO: real value
-        print "stopping lauter"
+    if diff.seconds >= 60: # TODO: real value
+        #print "stopping lauter"
+        #print diff.seconds
         sensors.stop_pumping()
         sensors.res_closed()
         return "BOIL"
     else:
+        #print "continuing lauter"
+        #print diff.seconds
         sensors.res_open()
         sensors.pump_kettle()
 
@@ -256,8 +260,8 @@ def boil_state(state, sensors, sys_control):
     
     if sys_control.boil_temp_reached:
         now = datetime.datetime.now()
-        diff = now - sys_control.lauter_start_time
-        if diff.seconds/60 >= 1: # TODO: real value
+        diff = now - sys_control.boil_start_time
+        if diff.seconds >= 60: # TODO: real value
             sensors.heater_kettle_off()
             return "COOL"
 

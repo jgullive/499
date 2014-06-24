@@ -99,23 +99,26 @@ class Simulator():
 
     # Simulate the volume readings
     def sim_mash_volume(self):
-        if self.outputs.res_valve:
+        if self.outputs.res_valve and self.inputs.res_volume > self.flow_rate:
             self.inputs.mash_volume += self.flow_rate
-        if self.outputs.kettle_valve:
+        if self.outputs.kettle_valve and self.inputs.kettle_volume > self.flow_rate:
             self.inputs.mash_volume += self.flow_rate
-        if self.outputs.pump_res_valve and self.outputs.pump:
+        if self.outputs.pump_res_valve and self.outputs.pump and self.inputs.mash_volume > self.flow_rate:
             self.inputs.mash_volume += self.flow_rate
+        #print "1: " + str(self.outputs.mash_valve) + " " + str(self.outputs.pump) + " " + str(self.outputs.pump_kettle_valve)
         if self.outputs.mash_valve and self.outputs.pump and (self.outputs.pump_kettle_valve or self.outputs.pump_res_valve):
+            #print "empyting mash to kettle"
             if self.inputs.mash_volume > self.flow_rate:
                 self.inputs.mash_volume -= self.flow_rate
             else:
                 print "Mash is empty, close valve"
 
     def sim_kettle_volume(self):
-        if self.outputs.input_kettle_valve:
+        if self.outputs.input_kettle_valve and self.inputs.res_volume > self.flow_rate:
             self.inputs.kettle_volume += self.flow_rate
-        if self.outputs.mash_valve and self.outputs.pump and self.outputs.pump_kettle_valve:
-            print "Filling kettle from mash"
+        #print "2: " + str(self.outputs.mash_valve) + " " + str(self.outputs.pump) + " " + str(self.outputs.pump_kettle_valve)
+        if self.outputs.mash_valve and (self.outputs.pump and self.outputs.pump_kettle_valve) and self.inputs.mash_volume > self.flow_rate:
+            #print "Filling kettle from mash"
             self.inputs.kettle_volume += self.flow_rate
         if self.outputs.kettle_valve:
             if self.inputs.kettle_volume > self.flow_rate:

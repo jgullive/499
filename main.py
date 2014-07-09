@@ -1,5 +1,6 @@
 import thread
 import time
+import sys
 
 
 from controller import *
@@ -23,7 +24,15 @@ try:
 except:
     print "Error: unable to start controller"
 
-open_gui(controller.sys_control)
+
+# Use the gui if running from xcode, otherwise run from command line
+mode = "LINE"
+
+if mode is "LINE":
+    path = sys.argv
+    self.sys_control.recipe_profile.grain_weight = self.sys_control.recipe_xml.read_xml(path)
+else:
+    open_gui(controller.sys_control)
 
 """
 try:

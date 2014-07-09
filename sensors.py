@@ -115,14 +115,23 @@ class Sensors():
     # Private
     ############################
     
-    def update_sensors(self, threadName, inputs, outputs):
-    
+    def simulate_sensors(self, inputs, outputs):
+        
         sim_sensors = Simulator(inputs, outputs)
-    
+        
         while(1):
             sim_sensors.sim_readings()
             time.sleep(1)
-    
+
+
+    def update_sensors(self, threadName, inputs, outputs, mode):
+        if mode is "SIM":
+            print "Operation mode is set to SIM..."
+            self.simulate_sensors(inputs, outputs)
+        else if mode is "REAL":
+            print "Operation mode is set to REAL..."
+        else:
+            print "!~~INVALID OPERATION MODE~~!"
     
     def sensor_loop(self, threadName):
         print "entering main sensor loop..."
@@ -153,8 +162,11 @@ class Sensors():
 
     def sensors_run(self):
         print "Starting sensors threads..."
+        
+        mode = "SIM"
+        
         try:
-            thread.start_new_thread( self.update_sensors, ("Sensors_update", self.inputs, self.outputs))
+            thread.start_new_thread( self.update_sensors, ("Sensors_update", self.inputs, self.outputs, mode))
             thread.start_new_thread( self.sensor_loop, ("Sensor_loop", ))
         
         except:

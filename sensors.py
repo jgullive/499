@@ -115,6 +115,11 @@ class Sensors():
     # Private
     ############################
     
+    def real_sensors(self, inputs, outputs):
+
+	    self.io.run()
+
+
     def simulate_sensors(self, inputs, outputs):
         
         sim_sensors = Simulator(inputs, outputs)
@@ -128,42 +133,44 @@ class Sensors():
         if mode is "SIM":
             print "Operation mode is set to SIM..."
             self.simulate_sensors(inputs, outputs)
-        else if mode is "REAL":
+        elif mode is "REAL":
             print "Operation mode is set to REAL..."
+	    self.real_sensors(inputs, outputs)
         else:
             print "!~~INVALID OPERATION MODE~~!"
     
     def sensor_loop(self, threadName):
-        print "entering main sensor loop..."
+        print "Entering main sensor loop..."
         #self.input_on()
         time.sleep(0.1)
         #self.input_off()
         #self.heater_on()
         while 1:
             self.no_update = 1
-            if abs(self.kettle_temp - self.read_kettle_temp()) > 1 or abs(self.kettle_volume - self.read_kettle_volume()) > 1:
+            if (abs(self.kettle_temp - self.read_kettle_temp()) > 1 or abs(self.kettle_volume - self.read_kettle_volume()) > 1) or (self.kettle_volume != self.read_kettle_volume()):
                 print "kettle (temp, vol): (%0.1f, %0.1f)" % (self.read_kettle_temp(), self.read_kettle_volume())
                 self.no_update = 0
                 self.kettle_temp = self.read_kettle_temp()
                 self.kettle_volume = self.read_kettle_volume()
-            if abs(self.mash_temp - self.read_mash_temp()) > 1 or abs(self.mash_volume - self.read_mash_volume()) > 1:
+            if (abs(self.mash_temp - self.read_mash_temp()) > 1 or abs(self.mash_volume - self.read_mash_volume()) > 1) or (self.mash_volume != self.read_mash_volume()):
                 print "mash   (temp, vol): (%0.1f, %0.1f)" % (self.read_mash_temp(), self.read_mash_volume())
                 self.no_update = 0
                 self.mash_temp = self.read_mash_temp()
                 self.mash_volume = self.read_mash_volume()
-            if abs(self.res_temp - self.read_res_temp()) > 1 or abs(self.res_volume - self.read_res_volume()) > 1:
+            if (abs(self.res_temp - self.read_res_temp()) > 1 or abs(self.res_volume - self.read_res_volume()) > 1) or (self.res_volume != self.read_res_volume()):
                 print "res    (temp, vol): (%0.1f, %0.1f)" % (self.read_res_temp(), self.read_res_volume())
                 self.no_update = 0
                 self.res_temp = self.read_res_temp()
                 self.res_volume = self.read_res_volume()
             if self.no_update:
-                print "..."
+		        continue
+                #print "..."
             time.sleep(1)
 
     def sensors_run(self):
         print "Starting sensors threads..."
         
-        mode = "SIM"
+        mode = "REAL"
         
         try:
             thread.start_new_thread( self.update_sensors, ("Sensors_update", self.inputs, self.outputs, mode))
@@ -178,6 +185,7 @@ class Sensors():
         #print "initializing sensors..."
         self.inputs = Inputs()
         self.outputs = Outputs()
+        self.io = IO(self.inputs, self.outputs)
         
         # values used to determine whether to print out updated readings or not
         # only used for print purposes

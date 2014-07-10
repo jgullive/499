@@ -12,6 +12,10 @@ from sensors import *
 from profile import *
 from string import upper
 
+KETTLE_VOL = 1
+RES_VOL = 1
+MASH_VOL = 1
+
 class ControlParameters():
     def __init__(self):
         self.systemOn = 0
@@ -132,7 +136,7 @@ def kettle_init_state(state, sensors, sys_control):
         sensors.heater_kettle_on()
         temp_kettle_reached = 0
     
-    if sensors.read_kettle_volume() >= 15:
+    if sensors.read_kettle_volume() >= KETTLE_VOL:
         sensors.input_kettle_off()
         vol_kettle_reached = 1
     else:
@@ -147,7 +151,7 @@ def kettle_init_state(state, sensors, sys_control):
         sensors.heater_res_on()
         temp_res_reached = 0
     
-    if sensors.read_res_volume() >= 15:
+    if sensors.read_res_volume() >= RES_VOL:
         sensors.input_res_off()
         vol_res_reached = 1
     else:
@@ -171,7 +175,7 @@ def kettle_init_state(state, sensors, sys_control):
 def mash_fill_state(state, sensors, sys_control):
     #print "MASHFILL"
     
-    if sensors.read_kettle_volume() >= 1:
+    if sensors.read_mash_volume() < MASH_VOL:
         sensors.kettle_open()
     else:
         sensors.kettle_closed()
@@ -230,15 +234,11 @@ def lauter_state(state, sensors, sys_control):
         sys_control.lauter_start_time = datetime.datetime.now()
     now = datetime.datetime.now()
     diff = now - sys_control.lauter_start_time
-    if diff.seconds >= 60: # TODO: real value
-        #print "stopping lauter"
-        #print diff.seconds
+    if diff.seconds/60 >= sys_control.recipe_profile.lauter_time:
         sensors.stop_pumping()
         sensors.res_closed()
         return "BOIL"
     else:
-        #print "continuing lauter"
-        #print diff.seconds
         sensors.res_open()
         sensors.pump_kettle()
 
@@ -250,7 +250,7 @@ def lauter_state(state, sensors, sys_control):
 def boil_state(state, sensors, sys_control):
     #print "BOIL"
     
-    if sensors.read_kettle_temp() > 50:
+    if sensors.read_kettle_temp() > sys_control.recipe_profile.boil_temp:
         if sys_control.boil_temp_reached is 0:
             sys_control.boil_temp_reached = 1
             sys_control.boil_start_time = datetime.datetime.now()
@@ -261,7 +261,7 @@ def boil_state(state, sensors, sys_control):
     if sys_control.boil_temp_reached:
         now = datetime.datetime.now()
         diff = now - sys_control.boil_start_time
-        if diff.seconds >= 60: # TODO: real value
+        if diff.seconds/60 >= sys_control.recipe_profile.mash_time:
             sensors.heater_kettle_off()
             return "COOL"
 
@@ -324,20 +324,6 @@ class Controller():
             print "!~Could not start state machine thread~!"
         
         self.sensors.sensors_run()
-        
-        print "Finished controller setup!"
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

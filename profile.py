@@ -38,10 +38,12 @@ class SystemProfile():
 
 class RecipeProfile():
     def __init__(self):
-        self.strike_temp = 154
-        self.lauter_temp = 168
+        self.strike_temp  = 165
+        self.lauter_temp  = 175
+        self.boil_temp    = 212
         self.grain_weight = 12
-        self.grist_ratio = 1.2
-        self.boil_time = 60
-        self.mash_temp = 32
-        self.mash_time = 1
+        self.grist_ratio  = 1.2
+        self.lauter_time  = 20
+        self.boil_time    = 60
+        self.mash_temp    = 154
+        self.mash_time    = 60

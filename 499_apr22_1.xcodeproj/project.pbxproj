@@ -14,6 +14,7 @@
 		D92610991908865900F9BDD7 /* controller.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = controller.py; sourceTree = "<group>"; };
 		D926109B1909BCBB00F9BDD7 /* xmlparse.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = xmlparse.py; sourceTree = "<group>"; };
 		D94E02601958B84F001490F7 /* jjstout.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = jjstout.xml; sourceTree = "<group>"; };
+		D94E027E196F0D76001490F7 /* io_test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = io_test.py; sourceTree = "<group>"; };
 		D9A49AFE19082F6F009BB8F7 /* sensor_sim.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = sensor_sim.py; sourceTree = "<group>"; };
 		D9A49AFF190830E8009BB8F7 /* profile.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = profile.py; sourceTree = "<group>"; };
 		D9BCE14C1907605D00D6236C /* sensors.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = sensors.py; sourceTree = "<group>"; };
@@ -25,16 +26,17 @@
 		D92554361906E67F0025A546 = {
 			isa = PBXGroup;
 			children = (
-				D926109B1909BCBB00F9BDD7 /* xmlparse.py */,
 				D92554411906E9110025A546 /* main.py */,
-				D9BCE14C1907605D00D6236C /* sensors.py */,
-				D90E82B51937925200662CC8 /* gittest.py */,
 				D92610991908865900F9BDD7 /* controller.py */,
+				D9BCE14C1907605D00D6236C /* sensors.py */,
 				D9A49AFE19082F6F009BB8F7 /* sensor_sim.py */,
 				D9BCE14E1907710300D6236C /* io.py */,
+				D94E027E196F0D76001490F7 /* io_test.py */,
+				D926109B1909BCBB00F9BDD7 /* xmlparse.py */,
 				D9A49AFF190830E8009BB8F7 /* profile.py */,
 				D9BCE14D1907647100D6236C /* gui.py */,
 				D92554451906F4DB0025A546 /* database.py */,
+				D90E82B51937925200662CC8 /* gittest.py */,
 				D94E02601958B84F001490F7 /* jjstout.xml */,
 				D92554441906F1B60025A546 /* secondthread.py */,
 			);

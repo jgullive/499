@@ -16,7 +16,7 @@ GPIO.VERSION
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
-
+currentCommandStep = 0
 
 MASH_FLT_PIN    = 23
 KETTLE_FLT_PIN  = 2
@@ -102,6 +102,43 @@ class Outputs():
         self.heater_kettle = 0
         self.heater_res = 0
 
+        
+def sttepperRotate(steps, direction):
+
+    while (steps != 0): 
+        #Outputs current step to motor PORT
+
+        if currentCommandStep is 0:
+            GPIO.output(HOP_PIN_A, 1)            
+            GPIO.output(HOP_PIN_B, 0)            
+            GPIO.output(HOP_PIN_C, 0)            
+            GPIO.output(HOP_PIN_D, 0)            
+        elif currentCommandStep is 1:
+            GPIO.output(HOP_PIN_A, 0)            
+            GPIO.output(HOP_PIN_B, 1)            
+            GPIO.output(HOP_PIN_C, 0)            
+            GPIO.output(HOP_PIN_D, 0)            
+        elif currentCommandStep is 2:
+            GPIO.output(HOP_PIN_A, 0)            
+            GPIO.output(HOP_PIN_B, 0)            
+            GPIO.output(HOP_PIN_C, 1)            
+            GPIO.output(HOP_PIN_D, 0)            
+        elif currentCommandStep is 3:
+            GPIO.output(HOP_PIN_A, 0)            
+            GPIO.output(HOP_PIN_B, 0)            
+            GPIO.output(HOP_PIN_C, 0)            
+            GPIO.output(HOP_PIN_D, 1)            
+
+        currentCommandStep = currentCommandStep + direction  
+        steps = steps - 1  #One step closer to the goal 
+                                               
+        # These if statements keep currentStep between 0 and 3 
+        if (currentCommandStep < 0): 
+            currentCommandStep = 3 
+        elif(currentCommandStep > 3): 
+            currentCommandStep = 0 
+        time.sleep(0.020)
+                                                                                   
 
 class IO():
 

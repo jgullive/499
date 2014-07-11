@@ -18,27 +18,27 @@ GPIO.setwarnings(False)
 
 currentCommandStep = 0
 
-MASH_FLT_PIN    = 23
-KETTLE_FLT_PIN  = 2
-RES_FLT_PIN     = 3
+MASH_FLT_PIN    = 23 # yellow dash dot dash
+KETTLE_FLT_PIN  = 2  # yellow dash dot dot dash
+RES_FLT_PIN     = 3  # yellow dash dot dot dot dash
 
-TEMP_PIN        = 4
+TEMP_PIN        = 4  # yellow dash
 
-HOP_PIN_A       = 14
-HOP_PIN_B       = 15
-HOP_PIN_C       = 18
-HOP_PIN_D       = 24
+HOP_PIN_A       = 14 # yellow dot
+HOP_PIN_B       = 15 # yellow dot dot
+HOP_PIN_C       = 18 # yellow dot dot dot
+HOP_PIN_D       = 24 # yellow dot dot dot dot
         
-CIRC_VLV_PIN    = 17
-SPRG_VLV_PIN    = 27
-KETTLE_VLV_PIN  = 22
-RES_VLV_PIN     = 10
-KETTLE_IN_PIN   = 9
-RES_IN_PIN      = 11
+CIRC_VLV_PIN    = 17 # red dot
+SPRG_VLV_PIN    = 27 # red dot dot
+KETTLE_VLV_PIN  = 22 # red dot dot dot
+RES_VLV_PIN     = 10 # red dot dash
+KETTLE_IN_PIN   = 9  # red dot dot dash
+RES_IN_PIN      = 11 # red dot dot dot dash
 
-PUMP_PIN        = 25
-KETTLE_HT_PIN   = 8
-RES_HT_PIN      = 7
+PUMP_PIN        = 25 # yellow dot dot dash dot dot
+KETTLE_HT_PIN   = 8  # red dot dot dash dot dot
+RES_HT_PIN      = 7  # red dot dash dot
 
 MASH_ID   = "597aa17"
 KETTLE_ID = "54769b8"

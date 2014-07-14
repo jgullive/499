@@ -1,6 +1,7 @@
 
 
 import RPi.GPIO as GPIO
+import time
 
 
 GPIO.VERSION
@@ -9,7 +10,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
 
-MASH_FLT_PIN    = 23
+MASH_FLT_PIN    = 18
 KETTLE_FLT_PIN  = 2
 RES_FLT_PIN     = 3
 
@@ -17,8 +18,8 @@ TEMP_PIN        = 4
 
 HOP_PIN_A       = 14
 HOP_PIN_B       = 15
-HOP_PIN_C       = 18
-HOP_PIN_D       = 24
+HOP_PIN_C       = 24
+HOP_PIN_D       = 23
 
 CIRC_VLV_PIN    = 17
 SPRG_VLV_PIN    = 27
@@ -35,11 +36,40 @@ MASH_ID   = "597aa17"
 KETTLE_ID = "54769b8"
 RES_ID    = "598ffd6"
 
-
 def output_test(PIN):
     GPIO.output(PIN, 1)
-    input("Press enter to continue to the next test. ")
+    output =  raw_input("Press enter to turn off relay.")
     GPIO.output(PIN, 0)
+    output =  raw_input("Press enter to continue to the next test.")
+    print " "
+
+def input_test():
+        run_test = raw_input("Press 1 to run input tests: ")
+        print " "
+
+        if run_test:
+            
+            mash_count = 0
+            kettle_count = 0
+            res_count = 0
+
+            while True:
+                print GPIO.input(MASH_FLT_PIN), " ", GPIO.input(KETTLE_FLT_PIN), " ",GPIO.input(RES_FLT_PIN)
+                if GPIO.input(MASH_FLT_PIN) and mash_count is 0:
+                    print "Mash float switch hit."
+                    mash_count = 1
+                if GPIO.input(KETTLE_FLT_PIN) and kettle_count is 0:
+                    print "Kettle float switch hit."
+                    kettle_count = 1
+                if GPIO.input(RES_FLT_PIN) and res_count is 0:
+                    print "Res float switch hit."
+                    res_count = 1
+                #if (mash_count and kettle_count and res_count):
+                #    break
+            print " "
+            output =  raw_input("Press enter to continue to the next test.")
+            print " "
+
 
 
 class io_test():
@@ -51,10 +81,12 @@ class io_test():
         print ""
         
         #Configure the I/O
-        GPIO.setup(MASH_FLT_PIN, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+        GPIO.setup(MASH_FLT_PIN,   GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
         GPIO.setup(KETTLE_FLT_PIN, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-        GPIO.setup(RES_FLT_PIN, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+        GPIO.setup(RES_FLT_PIN,    GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
         
+        #GPIO.setup(MASH_FLT_PIN, GPIO.OUT)
+
         GPIO.setup(HOP_PIN_A, GPIO.OUT)
         GPIO.setup(HOP_PIN_B, GPIO.OUT)
         GPIO.setup(HOP_PIN_C, GPIO.OUT)
@@ -72,10 +104,11 @@ class io_test():
         GPIO.setup(RES_HT_PIN, GPIO.OUT)
 
 
-    def run_tests():
+    def run_tests(self):
         
-        run_test = input("Press 1 to run hopperator tests: ")
         print ""
+        run_test = raw_input("Press 1 to run hopperator tests: ")
+        print " "
 
         if run_test:
             print "Testing HOP_PIN_A"
@@ -88,8 +121,7 @@ class io_test():
             output_test(HOP_PIN_D)
 
 
-        run_tests = input("Press 1 to run valve tests: ")
-        print ""
+        run_tests = raw_input("Press 1 to run valve tests: ")
 
         if run_tests:
             print "Testing CIRC_VLV_PIN"
@@ -105,8 +137,8 @@ class io_test():
             print "Testing KETTLE_IN_PIN"
             output_test(KETTLE_IN_PIN)
 
-        input("Press 1 to run high-voltage tests: ")
         print ""
+        run_tests = raw_input("Press 1 to run high-voltage tests: ")
 
         if run_tests:
             print "Testing PUMP_PIN"
@@ -116,6 +148,19 @@ class io_test():
             print "Testing RES_HT_PIN"
             output_test(RES_HT_PIN)
 
+        print ""
+        input_test()
+
+        print ""
+        run_tests = raw_input("Press 1 to run mash output test: ")
+        output_test(MASH_FLT_PIN)
+
+        print ""
+        print ""
         print "End of test suite."
         print "Thanks for playing!"
+
+
+test = io_test()
+test.run_tests()
 

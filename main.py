@@ -6,13 +6,9 @@ import sys
 from controller import *
 from xmlparse import *
 from secondthread import print_time
-from io_test import *
 #from database import setupDB
 
 from gui import open_gui
-
-test = io_test()
-test.run_tests()
 
 
 print "##########################################"

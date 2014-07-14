@@ -18,27 +18,27 @@ GPIO.setwarnings(False)
 
 currentCommandStep = 0
 
-MASH_FLT_PIN    = 23 # yellow dash dot dash
+MASH_FLT_PIN    = 18   # yellow dash dot dash
 KETTLE_FLT_PIN  = 2  # yellow dash dot dot dash
-RES_FLT_PIN     = 3  # yellow dash dot dot dot dash
+RES_FLT_PIN     = 3   # yellow dash dot dot dot dash
 
-TEMP_PIN        = 4  # yellow dash
+TEMP_PIN        = 4   # yellow dash
 
-HOP_PIN_A       = 14 # yellow dot
-HOP_PIN_B       = 15 # yellow dot dot
-HOP_PIN_C       = 18 # yellow dot dot dot
-HOP_PIN_D       = 24 # yellow dot dot dot dot
+HOP_PIN_A       = 14  # yellow dot
+HOP_PIN_B       = 15  # yellow dot dot
+HOP_PIN_C       = 24  # yellow dot dot dot
+HOP_PIN_D       = 23  # yellow dot dot dot dot
         
-CIRC_VLV_PIN    = 17 # red dot
-SPRG_VLV_PIN    = 27 # red dot dot
-KETTLE_VLV_PIN  = 22 # red dot dot dot
-RES_VLV_PIN     = 10 # red dot dash
-KETTLE_IN_PIN   = 9  # red dot dot dash
-RES_IN_PIN      = 11 # red dot dot dot dash
+CIRC_VLV_PIN    = 17  # red dot
+SPRG_VLV_PIN    = 27  # red dot dot
+KETTLE_VLV_PIN  = 22  # red dot dot dot
+RES_VLV_PIN     = 10  # red dot dash
+KETTLE_IN_PIN   = 9   # red dot dot dash
+RES_IN_PIN      = 11  # red dot dot dot dash
 
-PUMP_PIN        = 25 # yellow dot dot dash dot dot
-KETTLE_HT_PIN   = 8  # red dot dot dash dot dot
-RES_HT_PIN      = 7  # red dot dash dot
+PUMP_PIN        = 25  # yellow dot dot dash dot dot
+KETTLE_HT_PIN   = 8   # red dot dot dash dot dot
+RES_HT_PIN      = 7   # red dot dash dot
 
 MASH_ID   = "597aa17"
 KETTLE_ID = "54769b8"
@@ -101,13 +101,16 @@ class Outputs():
         self.pump = 0
         self.heater_kettle = 0
         self.heater_res = 0
+        # hopperator
+        self.hop_steps = 0
 
         
-def sttepperRotate(steps, direction):
+def stepper_rotate(steps, direction):
 
+    currentCommandStep = 0
     while (steps != 0): 
         #Outputs current step to motor PORT
-
+            
         if currentCommandStep is 0:
             GPIO.output(HOP_PIN_A, 1)            
             GPIO.output(HOP_PIN_B, 0)            
@@ -144,15 +147,15 @@ class IO():
 
     def float_update(self):
 
-        if(GPIO.input(MASH_FLT_PIN) != self.inputs.mash_volume):
+        #if(GPIO.input(MASH_FLT_PIN) != self.inputs.mash_volume):
             self.inputs.mash_volume = GPIO.input(MASH_FLT_PIN)
         #    print "Mash level changed to ", self.inputs.mash_volume
 
-        if(GPIO.input(KETTLE_FLT_PIN) != self.inputs.kettle_volume):
+        #if(GPIO.input(KETTLE_FLT_PIN) != self.inputs.kettle_volume):
             self.inputs.kettle_volume = GPIO.input(KETTLE_FLT_PIN)
         #    print "Kettle level changed to ", self.inputs.kettle_volume
 
-        if(GPIO.input(RES_FLT_PIN) != self.inputs.res_volume):
+        #if(GPIO.input(RES_FLT_PIN) != self.inputs.res_volume):
             self.inputs.res_volume = GPIO.input(RES_FLT_PIN)
         #    print "Res level changed to ", self.inputs.res_volume
 
@@ -177,12 +180,13 @@ class IO():
                 temp_string = lines[1][equals_pos+2:]
                 temp_c = float(temp_string) / 1000.0
                 temp_f = temp_c * 9.0 / 5.0 + 32.0
-                if MASH_ID in device:
-                    self.inputs.mash_temp = temp_f
-                if KETTLE_ID in device:
-                    self.inputs.kettle_temp = temp_f
-                if RES_ID in device:
-                    self.inputs.res_temp = temp_f
+                if temp_f > 0:
+                    if MASH_ID in device:
+                        self.inputs.mash_temp = temp_f
+                    if KETTLE_ID in device:
+                        self.inputs.kettle_temp = temp_f
+                    if RES_ID in device:
+                        self.inputs.res_temp = temp_f
          #       print "Current temp is",  temp_c, " ", temp_f, " ", device
 
     def output_update(self):
@@ -199,6 +203,7 @@ class IO():
         GPIO.output(PUMP_PIN, self.outputs.pump)
         GPIO.output(KETTLE_HT_PIN, self.outputs.heater_kettle)
         GPIO.output(RES_HT_PIN, self.outputs.heater_res)
+        stepper_rotate(self.outputs.hop_steps, 1)
 
     def run(self):
         print("Starting the REAL sensor loop...")

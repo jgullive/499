@@ -86,6 +86,9 @@ class Sensors():
     def res_closed(self):
         self.outputs.res_valve = 0
 
+    #Hopperator controls
+    def hop_addition(self):
+        self.outputs.hop_steps = self.outputs.hop_steps + 50
 
     #############################
     # Inputs

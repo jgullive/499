@@ -11,12 +11,15 @@ from xmlparse import *
 from sensors import *
 from profile import *
 from string import upper
+from logger import *
 
 KETTLE_VOL = 1
 RES_VOL = 1
 MASH_VOL = 1
-MASH_FILL_TIME = 1
-HEAT_LOSS = 5
+MASH_FILL_TIME = 0
+HEAT_LOSS = 15
+
+my_interrupt_state = "none"
 
 class ControlParameters():
     def __init__(self):
@@ -38,7 +41,8 @@ class ControlParameters():
 
 class StateMachine():
     def __init__(self, sensors, sys_control):
-        print "Starting state machine..."
+        self.logger = Logger()
+        self.logger.logprint("Initializing state machine...")
         self.sys_control = sys_control
         self.sensors = sensors
         self.handlers = {}
@@ -62,6 +66,7 @@ class StateMachine():
     def run(self, threadName, cargo):
         
         oldState = ""
+        global my_interrupt_state
         
         try:
             handler = self.handlers[self.startState]
@@ -73,20 +78,30 @@ class StateMachine():
             raise  "InitializationError", "at least one state must be an end_state"
         
         while 1:
-            while system_freeze(newState, self.sensors, self.sys_control) is "FREEZE":
+            while system_off(newState, self.sensors, self.sys_control) is "OFF":
                 pass
+            if my_interrupt_state is not "none":
+                newState = my_interrupt_state
+                my_interrupt_state = 'none'
             handler = self.handlers[upper(newState)]
             newState = handler(newState, self.sensors, self.sys_control)
             if newState is not oldState:
-                print newState
+                self.logger.logprint(newState)
+                if newState is "FREEZE":
+                    self.logger.logprint("The system has been frozen!", 'warning')
                 oldState = newState
             
             if upper(newState) in self.endStates:
-                newState = system_freeze(newState, self.sensors, self.sys_control)
+                newState = system_off(newState, self.sensors, self.sys_control)
                 handler = self.handlers[upper(newState)]
                 newState = handler(newState, self.sensors, self.sys_control)
                 break
 
+
+def interrupt_state(new_state):
+    global my_interrupt_state
+
+    my_interrupt_state = new_state
 
 #
 # Emergency system freeze. While enabled no pumps/heaters/valves are on
@@ -94,9 +109,18 @@ class StateMachine():
 # to recover from the system initiating the freeze
 #
 def system_freeze(state, sensors, sys_control):
-    
-    if state is "FREEZE":
-        raise "FreezeError", "the system has automatically frozen itself to avoid danger"
+
+    sensors.outputs.input_valve = 0
+    sensors.outputs.mash_valve = 0
+    sensors.outputs.kettle_valve = 0
+    sensors.outputs.res_valve = 0
+    sensors.outputs.pump = 0
+    sensors.outputs.heater = 0
+    return ("FREEZE")
+
+
+def system_off(state, sensors, sys_control):
+
     if not sys_control.systemOn:
         sensors.outputs.input_valve = 0
         sensors.outputs.mash_valve = 0
@@ -104,20 +128,21 @@ def system_freeze(state, sensors, sys_control):
         sensors.outputs.res_valve = 0
         sensors.outputs.pump = 0
         sensors.outputs.heater = 0
-        return ("FREEZE")
+        return ("OFF")
     else:
-        return (state)
+        return(state)
 
 #
 # Initialize system setup
 #
 def initialize_state(state, sensors, sys_control):
-    print "INIT"
+    
+    Logger().logprint("INIT")
 
 
     sys_control.recipe_profile.grain_weight = sys_control.recipe_xml.parse_xml()
     sys_control.sys_profile.calibrate_system(sys_control.recipe_profile)
-    print "grain weight: %0.2f" % sys_control.recipe_profile.grain_weight
+    Logger().logprint("Grain weight: %0.2f" % sys_control.recipe_profile.grain_weight)
     
     return "STRIKEINIT"
 
@@ -140,7 +165,7 @@ def kettle_init_state(state, sensors, sys_control):
     if sensors.read_kettle_volume() >= KETTLE_VOL:
         sensors.input_kettle_off()
         vol_kettle_reached = 1
-        if sensors.read_kettle_temp() >= sys_control.recipe_profile.mash_temp + HEAT_LOSS:
+        if sensors.read_kettle_temp() >= sys_control.recipe_profile.mash_temp + HEAT_LOSS -100:
             sensors.heater_kettle_off()
             temp_kettle_reached = 1
         else:
@@ -158,7 +183,7 @@ def kettle_init_state(state, sensors, sys_control):
     if sensors.read_res_volume() >= RES_VOL:
         sensors.input_res_off()
         vol_res_reached = 1
-        if sensors.read_res_temp() >= sys_control.recipe_profile.mash_temp + HEAT_LOSS:
+        if sensors.read_res_temp() >= sys_control.recipe_profile.mash_temp + HEAT_LOSS -100:
             sensors.heater_res_off()
             temp_res_reached = 1
         else:
@@ -222,6 +247,8 @@ def mash_state(state, sensors, sys_control):
         sensors.heater_res_on()
 
     now = datetime.datetime.now()
+    if not sys_control.mash_start_time:
+        sys_control.mash_start_time = now
     diff = now - sys_control.mash_start_time
     if diff.seconds/60 > sys_control.recipe_profile.mash_time:
         sensors.stop_pumping()
@@ -328,14 +355,16 @@ class Controller():
     
     def __init__(self):
         
-        print "Starting controller..."
         
+        self.logger = Logger()
+        self.logger.logprint('Initializing controller...')
         self.sensors = Sensors()
         self.sys_control = ControlParameters()
         self.stateMachine = StateMachine(self.sensors, self.sys_control)
 
         
         self.stateMachine.add_state("FREEZE", system_freeze)
+        self.stateMachine.add_state("OFF", system_freeze)
         self.stateMachine.add_state("INIT", initialize_state)
         self.stateMachine.add_state("STRIKEINIT", kettle_init_state)
         self.stateMachine.add_state("MASHFILL", mash_fill_state)
@@ -352,9 +381,8 @@ class Controller():
             thread.start_new_thread( self.stateMachine.run, ("State_machine", 1))
         
         except:
-            print "!~Could not start state machine thread~!"
+            self.logger.logprint("!~Could not start state machine thread~!", 'error')
         
-        self.sensors.sensors_run()
 
 
 

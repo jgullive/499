@@ -10,6 +10,8 @@ import glob
 import time
 import subprocess
 
+from logger import *
+
 
 GPIO.VERSION
 
@@ -107,9 +109,12 @@ class Outputs():
         
 def stepper_rotate(steps, direction):
 
-    currentCommandStep = 0
+    global currentCommandStep
+
     while (steps != 0): 
         #Outputs current step to motor PORT
+
+        print "on step ", steps
             
         if currentCommandStep is 0:
             GPIO.output(HOP_PIN_A, 1)            
@@ -206,13 +211,13 @@ class IO():
         stepper_rotate(self.outputs.hop_steps, 1)
 
     def run(self):
-        print("Starting the REAL sensor loop...")
+        self.logger.logprint("Starting the REAL sensor loop...")
 
         while True:
             self.float_update()
             self.temp_update()
             self.output_update()
-            print "!!!"
+            self.logger.logprint("!!!", 'debug')
             #for device in self.device_file:
             #    f = open(device, 'r')
             #    lines = f.readlines()
@@ -226,7 +231,8 @@ class IO():
 
     def __init__(self, inputs, outputs):
 
-        print("Initializing IO...")
+        self.logger = Logger()
+        self.logger.logprint("Initializing IO...")
         self.inputs  = inputs
         self.outputs = outputs
         self.device_file = []

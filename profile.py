@@ -38,18 +38,18 @@ class SystemProfile():
 
 class RecipeProfile():
     def __init__(self):
-        self.strike_temp  = 60#165
-        self.lauter_temp  = 60#175
-        self.boil_temp    = 60#212
+        self.strike_temp  = 55
+        self.lauter_temp  = 55
+        self.boil_temp    = 212
         self.grain_weight = 12
         self.grist_ratio  = 1.2
-        self.lauter_time  = 0#20
-        self.boil_time    = 0#60
-        self.mash_temp    = 60#154
-        self.mash_time    = 0#60
+        self.lauter_time  = 15
+        self.boil_time    = 60
+        self.mash_temp    = 154
+        self.mash_time    = 0
 
         # Hop additions from 1 - 4
-        self.hops1        = 2#60
-        self.hops2        = 2#30
-        self.hops3        = 1#15
-        self.hops4        = 0#5
+        self.hops1        = 60
+        self.hops2        = 30
+        self.hops3        = 15
+        self.hops4        = 5

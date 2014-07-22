@@ -7,9 +7,7 @@ import sys
 d = './logs'
 if not os.path.exists(d):
     os.makedirs(d)
-    print 'no directory'
-else:
-    print 'found directory'
+    #print 'no directory'
 
 
 now = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
@@ -48,5 +46,5 @@ class Logger():
 
 
 
-logger = Logger()
-logger.logprint('Hello world!', 'debug')
+#logger = Logger()
+#logger.logprint('Hello world!', 'debug')

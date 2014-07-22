@@ -217,7 +217,7 @@ class IO():
             self.float_update()
             self.temp_update()
             self.output_update()
-            self.logger.logprint("!!!", 'debug')
+            #self.logger.logprint("!!!", 'debug')
             #for device in self.device_file:
             #    f = open(device, 'r')
             #    lines = f.readlines()

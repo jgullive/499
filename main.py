@@ -14,12 +14,11 @@ from logger import *
 from gui import open_gui
 
 logger = Logger()
-logger.logprint('stuff stuf stuff', 'debug')
 
-print "##########################################"
-print "#        Welcome to the Brewery          #"
-print "##########################################"
-print ""
+print("##########################################")
+print("#        Welcome to the Brewery          #")
+print("##########################################")
+print("")
 
 #stepper_rotate(50, 1)
 
@@ -36,9 +35,9 @@ except:
 mode = "LINE"
 
 if mode is "LINE":
-    path = input("Please enter your recipe path: ")
-    print "You entered ", path
-    controller.sys_control.recipe_profile.grain_weight = controller.sys_control.recipe_xml.read_xml(path)
+    path = raw_input("Please enter your recipe path: ")
+    print "You entered ", str(path)
+    controller.sys_control.recipe_profile.grain_weight = controller.sys_control.recipe_xml.read_xml(str(path))
 
    # var = input("Press enter to start the brew ")
     print "Brew started!"
@@ -63,9 +62,7 @@ time.sleep(2)
 interrupt_state("BOIL")
 
 while 1:
-    #state = input("Hit 1 to stop the brew: "
-    #if state is 1:
-    #    oldState = controller.sys_control.
-    pass
+    state = raw_input("Enter a new state at any time to go to that state.\n")
+    interrupt_state(str(state))
 
 

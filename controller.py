@@ -81,21 +81,27 @@ class StateMachine():
             while system_off(newState, self.sensors, self.sys_control) is "OFF":
                 pass
             if my_interrupt_state is not "none":
+                normal_state = newState
                 newState = my_interrupt_state
                 my_interrupt_state = 'none'
-            handler = self.handlers[upper(newState)]
-            newState = handler(newState, self.sensors, self.sys_control)
-            if newState is not oldState:
-                self.logger.logprint(newState)
-                if newState is "FREEZE":
-                    self.logger.logprint("The system has been frozen!", 'warning')
-                oldState = newState
-            
-            if upper(newState) in self.endStates:
-                newState = system_off(newState, self.sensors, self.sys_control)
+                outputs_off(self.sensors)
+            if upper(newState) in self.handlers:
                 handler = self.handlers[upper(newState)]
                 newState = handler(newState, self.sensors, self.sys_control)
-                break
+                if newState is not oldState:
+                    self.logger.logprint(newState)
+                    if newState is "FREEZE":
+                        self.logger.logprint("The system has been frozen!", 'warning')
+                    oldState = newState
+            
+                if upper(newState) in self.endStates:
+                    newState = system_off(newState, self.sensors, self.sys_control)
+                    handler = self.handlers[upper(newState)]
+                    newState = handler(newState, self.sensors, self.sys_control)
+                    break
+            else:
+                self.logger.logprint("Unknown state entered!", 'warning')
+                newState = normal_state
 
 
 def interrupt_state(new_state):
@@ -103,12 +109,7 @@ def interrupt_state(new_state):
 
     my_interrupt_state = new_state
 
-#
-# Emergency system freeze. While enabled no pumps/heaters/valves are on
-# Can be enabled by either the user or the system. Currently there is no way
-# to recover from the system initiating the freeze
-#
-def system_freeze(state, sensors, sys_control):
+def outputs_off(sensors):
 
     sensors.outputs.input_valve = 0
     sensors.outputs.mash_valve = 0
@@ -116,18 +117,22 @@ def system_freeze(state, sensors, sys_control):
     sensors.outputs.res_valve = 0
     sensors.outputs.pump = 0
     sensors.outputs.heater = 0
+
+#
+# Emergency system freeze. While enabled no pumps/heaters/valves are on
+# Can be enabled by either the user or the system. Currently there is no way
+# to recover from the system initiating the freeze
+#
+def system_freeze(state, sensors, sys_control):
+    outputs_off(sensors) 
     return ("FREEZE")
 
 
 def system_off(state, sensors, sys_control):
 
+
     if not sys_control.systemOn:
-        sensors.outputs.input_valve = 0
-        sensors.outputs.mash_valve = 0
-        sensors.outputs.kettle_valve = 0
-        sensors.outputs.res_valve = 0
-        sensors.outputs.pump = 0
-        sensors.outputs.heater = 0
+        outputs_off(sensors)
         return ("OFF")
     else:
         return(state)

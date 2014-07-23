@@ -20,16 +20,16 @@ GPIO.setwarnings(False)
 
 currentCommandStep = 0
 
-MASH_FLT_PIN    = 18   # yellow dash dot dash
-KETTLE_FLT_PIN  = 2  # yellow dash dot dot dash
+MASH_FLT_PIN    = 18  # yellow dash dot dash
+KETTLE_FLT_PIN  = 2   # yellow dash dot dot dash
 RES_FLT_PIN     = 3   # yellow dash dot dot dot dash
 
 TEMP_PIN        = 4   # yellow dash
 
 HOP_PIN_A       = 14  # yellow dot
 HOP_PIN_B       = 15  # yellow dot dot
-HOP_PIN_C       = 24  # yellow dot dot dot
-HOP_PIN_D       = 23  # yellow dot dot dot dot
+HOP_PIN_C       = 23  # yellow dot dot dot
+HOP_PIN_D       = 24  # yellow dot dot dot dot
         
 CIRC_VLV_PIN    = 17  # red dot
 SPRG_VLV_PIN    = 27  # red dot dot
@@ -107,44 +107,50 @@ class Outputs():
         self.hop_steps = 0
 
         
-def stepper_rotate(steps, direction):
+def stepper_rotate(outputs, direction):
 
     global currentCommandStep
 
-    while (steps != 0): 
+    #print 'hopperator turning ', outputs.hop_steps, ' steps'
+    while (outputs.hop_steps != 0): 
         #Outputs current step to motor PORT
 
-        print "on step ", steps
+        #print "on step ", outputs.hop_steps
             
         if currentCommandStep is 0:
             GPIO.output(HOP_PIN_A, 1)            
             GPIO.output(HOP_PIN_B, 0)            
-            GPIO.output(HOP_PIN_C, 0)            
+            GPIO.output(HOP_PIN_C, 1)            
             GPIO.output(HOP_PIN_D, 0)            
         elif currentCommandStep is 1:
-            GPIO.output(HOP_PIN_A, 0)            
-            GPIO.output(HOP_PIN_B, 1)            
+            GPIO.output(HOP_PIN_A, 1)            
+            GPIO.output(HOP_PIN_B, 0)            
             GPIO.output(HOP_PIN_C, 0)            
-            GPIO.output(HOP_PIN_D, 0)            
+            GPIO.output(HOP_PIN_D, 1)            
         elif currentCommandStep is 2:
             GPIO.output(HOP_PIN_A, 0)            
-            GPIO.output(HOP_PIN_B, 0)            
+            GPIO.output(HOP_PIN_B, 1)            
             GPIO.output(HOP_PIN_C, 1)            
             GPIO.output(HOP_PIN_D, 0)            
         elif currentCommandStep is 3:
             GPIO.output(HOP_PIN_A, 0)            
-            GPIO.output(HOP_PIN_B, 0)            
+            GPIO.output(HOP_PIN_B, 1)            
             GPIO.output(HOP_PIN_C, 0)            
             GPIO.output(HOP_PIN_D, 1)            
 
         currentCommandStep = currentCommandStep + direction  
-        steps = steps - 1  #One step closer to the goal 
+        outputs.hop_steps = outputs.hop_steps - 1  #One step closer to the goal 
                                                
         # These if statements keep currentStep between 0 and 3 
         if (currentCommandStep < 0): 
             currentCommandStep = 3 
         elif(currentCommandStep > 3): 
             currentCommandStep = 0 
+        time.sleep(0.020)
+        GPIO.output(HOP_PIN_A, 0)            
+        GPIO.output(HOP_PIN_B, 0)            
+        GPIO.output(HOP_PIN_C, 0)            
+        GPIO.output(HOP_PIN_D, 0)            
         time.sleep(0.020)
                                                                                    
 
@@ -208,7 +214,7 @@ class IO():
         GPIO.output(PUMP_PIN, self.outputs.pump)
         GPIO.output(KETTLE_HT_PIN, self.outputs.heater_kettle)
         GPIO.output(RES_HT_PIN, self.outputs.heater_res)
-        stepper_rotate(self.outputs.hop_steps, 1)
+        stepper_rotate(self.outputs, 1)
 
     def run(self):
         self.logger.logprint("Starting the REAL sensor loop...")

@@ -184,7 +184,6 @@ def kettle_init_state(state, sensors, sys_control):
         temp_kettle_reached = 1
     
     # RES readings
-    
     if sensors.read_res_volume() >= RES_VOL:
         sensors.input_res_off()
         vol_res_reached = 1
@@ -225,7 +224,7 @@ def mash_fill_state(state, sensors, sys_control):
     
     now = datetime.datetime.now()
     diff = now - sys_control.fill_start_time
-    if diff.seconds/60 < MASH_FILL_TIME:
+    if float(diff.seconds)/60 < MASH_FILL_TIME:
         sensors.kettle_open()
     else:
         sensors.kettle_closed()
@@ -255,7 +254,7 @@ def mash_state(state, sensors, sys_control):
     if not sys_control.mash_start_time:
         sys_control.mash_start_time = now
     diff = now - sys_control.mash_start_time
-    if diff.seconds/60 > sys_control.recipe_profile.mash_time:
+    if float(diff.seconds)/60 > sys_control.recipe_profile.mash_time:
         sensors.stop_pumping()
         return "PRELAUTER"
 
@@ -286,7 +285,7 @@ def lauter_state(state, sensors, sys_control):
         sys_control.lauter_start_time = datetime.datetime.now()
     now = datetime.datetime.now()
     diff = now - sys_control.lauter_start_time
-    if diff.seconds/60 > sys_control.recipe_profile.lauter_time:
+    if float(diff.seconds)/60 > sys_control.recipe_profile.lauter_time:
         sensors.stop_pumping()
         sensors.res_closed()
         return "BOIL"
@@ -311,22 +310,25 @@ def boil_state(state, sensors, sys_control):
         sensors.heater_kettle_on()
     
     if sys_control.boil_temp_reached:
+        if sys_control.boil_start_time is 0:
+            sys_control.boil_start_time = datetime.datetime.now()
         now = datetime.datetime.now()
         diff = now - sys_control.boil_start_time
-        if diff.seconds/60 > sys_control.recipe_profile.boil_time:
+        if float(diff.seconds)/60 > sys_control.recipe_profile.boil_time:
             sensors.heater_kettle_off()
             return "COOL"
         # Hop dispensing logic
-        if  (sys_control.hop1 is 0) and (diff.seconds/60 > (sys_control.recipe_profile.boil_time - sys_control.recipe_profile.hops1)):
+        #print 'boil time information ', sys_control.hop1, ' ', float(diff.seconds)/60, ' ', (sys_control.recipe_profile.boil_time - sys_control.recipe_profile.hops1) 
+        if  (sys_control.hop1 is 0) and (float(diff.seconds)/60 > (sys_control.recipe_profile.boil_time - sys_control.recipe_profile.hops1)):
             sensors.hop_addition()
             sys_control.hop1 = 1
-        if (sys_control.hop2 is 0) and (diff.seconds/60 > (sys_control.recipe_profile.boil_time - sys_control.recipe_profile.hops2)):
+        if (sys_control.hop2 is 0) and (float(diff.seconds)/60 > (sys_control.recipe_profile.boil_time - sys_control.recipe_profile.hops2)):
             sensors.hop_addition()
             sys_control.hop2 = 1
-        if (sys_control.hop3 is 0) and (diff.seconds/60 > (sys_control.recipe_profile.boil_time - sys_control.recipe_profile.hops3)):
+        if (sys_control.hop3 is 0) and (float(diff.seconds)/60 > (sys_control.recipe_profile.boil_time - sys_control.recipe_profile.hops3)):
             sensors.hop_addition()
             sys_control.hop3 = 1
-        if (sys_control.hop4 is 0) and (diff.seconds/60 > (sys_control.recipe_profile.boil_time - sys_control.recipe_profile.hops4)):
+        if (sys_control.hop4 is 0) and (float(diff.seconds)/60 > (sys_control.recipe_profile.boil_time - sys_control.recipe_profile.hops4)):
             sensors.hop_addition()
             sys_control.hop4 = 1
 

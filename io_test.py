@@ -18,8 +18,8 @@ TEMP_PIN        = 4
 
 HOP_PIN_A       = 14
 HOP_PIN_B       = 15
-HOP_PIN_C       = 24
-HOP_PIN_D       = 23
+HOP_PIN_C       = 23
+HOP_PIN_D       = 24
 
 CIRC_VLV_PIN    = 17
 SPRG_VLV_PIN    = 27
@@ -36,15 +36,26 @@ MASH_ID   = "597aa17"
 KETTLE_ID = "54769b8"
 RES_ID    = "598ffd6"
 
-def output_test(PIN):
+def output_test(PIN, PIN2=0):
     GPIO.output(PIN, 1)
+    if PIN2 is not 0:
+        GPIO.output(PIN2, 1)
     output =  raw_input("Press enter to turn off relay.")
     GPIO.output(PIN, 0)
+    if PIN2 is not 0:
+        GPIO.output(PIN2, 0)
     output =  raw_input("Press enter to continue to the next test.")
     print " "
 
 def input_test():
+        GPIO.output(SPRG_VLV_PIN, 1)
+        GPIO.output(RES_VLV_PIN, 1)
+        GPIO.output(PUMP_PIN, 1)
+
         run_test = raw_input("Press 1 to run input tests: ")
+        GPIO.output(SPRG_VLV_PIN, 0)
+        GPIO.output(RES_VLV_PIN, 0)
+        GPIO.output(PUMP_PIN, 0)
         print " "
 
         if run_test:
@@ -111,14 +122,29 @@ class io_test():
         print " "
 
         if run_test:
-            print "Testing HOP_PIN_A"
-            output_test(HOP_PIN_A)
-            print "Testing HOP_PIN_B"
-            output_test(HOP_PIN_B)
-            print "Testing HOP_PIN_C"
-            output_test(HOP_PIN_C)
-            print "Testing HOP_PIN_D"
-            output_test(HOP_PIN_D)
+            while 1:
+                next_step = str(raw_input("enter the next step: "))
+                time.sleep(0.02)
+                GPIO.output(HOP_PIN_A, 0)
+                GPIO.output(HOP_PIN_B, 0)
+                GPIO.output(HOP_PIN_C, 0)
+                GPIO.output(HOP_PIN_D, 0)
+                if next_step is 'a':
+                    GPIO.output(HOP_PIN_A, 1)
+                    GPIO.output(HOP_PIN_C, 1)
+                elif next_step is 'b':
+                    GPIO.output(HOP_PIN_A, 1)
+                    GPIO.output(HOP_PIN_D, 1)
+                elif next_step is 'c':
+                    GPIO.output(HOP_PIN_B, 1)
+                    GPIO.output(HOP_PIN_C, 1)
+                elif next_step is 'd':
+                    GPIO.output(HOP_PIN_B, 1)
+                    GPIO.output(HOP_PIN_D, 1)
+                else:
+                    break
+
+
 
 
         run_tests = raw_input("Press 1 to run valve tests: ")

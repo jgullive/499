@@ -20,7 +20,6 @@ print("#        Welcome to the Brewery          #")
 print("##########################################")
 print("")
 
-#stepper_rotate(50, 1)
 
 #XmlParse()
 
@@ -53,13 +52,6 @@ try:
 except:
     print "Error: unable to setup DB"
 """
-
-time.sleep(2)
-interrupt_state("FREEZE")
-time.sleep(2)
-interrupt_state("MASH")
-time.sleep(2)
-interrupt_state("BOIL")
 
 while 1:
     state = raw_input("Enter a new state at any time to go to that state.\n")

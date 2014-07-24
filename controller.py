@@ -145,7 +145,7 @@ def initialize_state(state, sensors, sys_control):
     Logger().logprint("INIT")
 
 
-    sys_control.recipe_profile.grain_weight = sys_control.recipe_xml.parse_xml()
+    sys_control.recipe_xml.parse_xml(sys_control.recipe_profile)
     sys_control.sys_profile.calibrate_system(sys_control.recipe_profile)
     Logger().logprint("Grain weight: %0.2f" % sys_control.recipe_profile.grain_weight)
     

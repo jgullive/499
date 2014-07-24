@@ -38,18 +38,19 @@ class SystemProfile():
 
 class RecipeProfile():
     def __init__(self):
-        self.strike_temp  = 55
-        self.lauter_temp  = 55
-        self.boil_temp    = 55
-        self.grain_weight = 12
+        self.lauter_temp  = 75     # Overridden by recipe
+        self.boil_temp    = 90
+        self.grain_weight = 12     # Overridden by recipe
         self.grist_ratio  = 1.2
         self.lauter_time  = 2
-        self.boil_time    = 2
-        self.mash_temp    = 55
-        self.mash_time    = 0
+        self.boil_time    = 2      # Overridden by recipe
+        self.mash_temp    = 55     # Overridden by recipe
+        self.mash_time    = 0      # Overridden by recipe
+        self.strike_temp  = self.mash_temp + 10 
 
         # Hop additions from 1 - 4
-        self.hops1        = 2
-        self.hops2        = 1.5
-        self.hops3        = 1
-        self.hops4        = 0.5
+        self.hops1        = -10  # Overridden by recipe
+        self.hops2        = -10  # Overridden by recipe
+        self.hops3        = -10  # Overridden by recipe
+        self.hops4        = -10  # Overridden by recipe
+
